@@ -18,6 +18,10 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('first_name', 'last_name','username', 'email', 'password', 'confirm_password')
+        extra_kwargs = {
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+        }
 
     def validate(self, data):
         password = data.get('password')
