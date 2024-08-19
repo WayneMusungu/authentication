@@ -42,3 +42,13 @@ class UserSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+    
+    
+class PasswordResetSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, validators=[validate_special_character])
+    confirm_password = serializers.CharField(write_only=True)
+    
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": "Password do not match"})
+        return data

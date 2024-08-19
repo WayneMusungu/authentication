@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework import generics
 from authentication.models import User
-from authentication.serializers import LoginSerializer, UserSerializer
+from authentication.serializers import LoginSerializer, PasswordResetSerializer, UserSerializer
 
 
 class UserRegistration(generics.CreateAPIView):
@@ -45,5 +46,27 @@ class LoginView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+
+class PasswordResetView(generics.UpdateAPIView):
+    serializer_class = PasswordResetSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
+    
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(data=request.data)
         
+        if serializer.is_valid():
+            new_password = serializer.validated_data['new_password']
+            
+            user.set_password(new_password)
+            user.save()
+            
+            return Response({
+                "detail": "Password has been reset successfully."
+            }, status=status.HTTP_200_OK)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
