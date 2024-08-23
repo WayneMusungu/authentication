@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework import generics
 from authentication.models import User
-from authentication.serializers import LoginSerializer, PasswordResetSerializer, UserSerializer
+from authentication.serializers import ForgotPasswordSerializer, LoginSerializer, PasswordResetSerializer, UserSerializer
 
 
 class UserRegistration(generics.CreateAPIView):
@@ -69,4 +69,22 @@ class PasswordResetView(generics.UpdateAPIView):
             }, status=status.HTTP_200_OK)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+    
+    
+class ForgotPasswordAPIView(APIView):
+    def post(self, request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            new_password = serializer.validated_data['new_password']
+            
+            user = User.objects.get(email=email)
+            user.set_password(new_password)
+            user.save()
+            
+            return Response({
+                "detail": "Password has been reset successfully."
+            }, status=status.HTTP_200_OK)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                        
