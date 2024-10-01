@@ -2,6 +2,7 @@ from rest_framework import serializers
 from authentication.models import User
 import re
 from django.core.exceptions import ValidationError
+from authentication.validators import allow_only_images_valdators
 
 def validate_special_character(value):
     # This is a custom validator that adds aditional layer of complexity to ensure passwords
@@ -14,10 +15,11 @@ def validate_special_character(value):
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_special_character])
     confirm_password = serializers.CharField(write_only=True)
+    profile_picture = serializers.ImageField(required=True, allow_null=False, validators=[allow_only_images_valdators])
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name','username', 'email', 'password', 'confirm_password')
+        fields = ('first_name', 'last_name', 'username', 'email', 'password', 'confirm_password', 'profile_picture')
         extra_kwargs = {
             'first_name': {'required': True},
             'last_name': {'required': True},
@@ -38,6 +40,12 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
     
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'username', 'email', 'profile_picture', 'created_date')
+
     
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

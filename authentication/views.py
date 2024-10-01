@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework import generics
 from authentication.models import User
-from authentication.serializers import ForgotPasswordSerializer, LoginSerializer, PasswordResetSerializer, UserSerializer
+from authentication.serializers import ForgotPasswordSerializer, LoginSerializer, PasswordResetSerializer, UserProfileSerializer, UserSerializer
 
 
 class UserRegistration(generics.CreateAPIView):
@@ -45,6 +45,15 @@ class LoginView(APIView):
                 {'detail': 'An error occurred: ' + str(e), 'status': False},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+            
+class UserProfile(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
 
 
 class PasswordResetView(generics.UpdateAPIView):

@@ -20,6 +20,7 @@ class DroneListCreate(generics.ListCreateAPIView):
 class DroneRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Drone.objects.all()
     serializer_class = DroneSerializer
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
