@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from authentication.models import User
 from authentication.serializers import ForgotPasswordSerializer, LoginSerializer, PasswordResetSerializer, UserProfileSerializer, UserSerializer
+from rest_framework.throttling import ScopedRateThrottle, UserRateThrottle
 
 
 class UserRegistration(generics.CreateAPIView):
@@ -15,6 +16,8 @@ class UserRegistration(generics.CreateAPIView):
 
 
 class LoginView(APIView):
+    throttle_scope = 'login'  # Define the throttle scope for login
+    throttle_classes = [ScopedRateThrottle]  # Apply scoped throttling to login
     def post(self, request):
         try:
             serializer = LoginSerializer(data=request.data)
@@ -48,9 +51,10 @@ class LoginView(APIView):
 
             
 class UserProfile(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
     
     def get_object(self):
         return self.request.user

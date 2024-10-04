@@ -2,12 +2,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from drones.models import Drone
 from drones.serializers import DroneSerializer
-
+from rest_framework.throttling import UserRateThrottle
 
 class DroneListCreate(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
     queryset = Drone.objects.all()
     serializer_class = DroneSerializer
-    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
@@ -18,9 +19,10 @@ class DroneListCreate(generics.ListCreateAPIView):
         
 
 class DroneRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]  
     queryset = Drone.objects.all()
     serializer_class = DroneSerializer
-    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
