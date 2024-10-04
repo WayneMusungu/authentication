@@ -145,6 +145,7 @@ REST_FRAMEWORK = {
         'anon': '1/min',  
         'user': '2/min',  
         'login': '5/min', 
+        'user_profile': '3/min'
     }
 }
 

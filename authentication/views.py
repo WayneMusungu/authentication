@@ -52,7 +52,8 @@ class LoginView(APIView):
             
 class UserProfile(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'user_profile'
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     
