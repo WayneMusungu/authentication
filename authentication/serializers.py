@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User
 import re
 from django.core.exceptions import ValidationError
@@ -51,7 +53,24 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     
-    
+    def authenticate_user(self):
+        email = self.validated_data['email']
+        password = self.validated_data['password']
+        
+        user = authenticate(email=email, password=password)
+        
+        if user is None:
+            return None, None
+        
+        refresh = RefreshToken.for_user(user)
+        tokens = {
+            'status': True,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }
+        return user, tokens
+         
+
 class PasswordResetSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, validators=[validate_special_character])
     confirm_password = serializers.CharField(write_only=True)
