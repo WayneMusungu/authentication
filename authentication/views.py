@@ -19,15 +19,13 @@ class LoginView(APIView):
     
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             user, tokens = serializer.authenticate_user()
             if user is not None:
                 return Response(tokens, status=status.HTTP_200_OK)
             else:
                 return Response({'detail': 'Authentication failed', 'status': False}, status=status.HTTP_404_NOT_FOUND)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserProfile(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
