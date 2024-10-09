@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework import generics
 from authentication.models import User
-from authentication.serializers import ForgotPasswordSerializer, LoginSerializer, PasswordResetSerializer, UserProfileSerializer, UserSerializer
-from rest_framework.throttling import ScopedRateThrottle
+from authentication.serializers import ForgotPasswordSerializer, LoginSerializer, PasswordResetSerializer, UpdateUserSerializer, UserProfileSerializer, UserSerializer
+from rest_framework.throttling import ScopedRateThrottle, UserRateThrottle
 
 
 class UserRegistration(generics.CreateAPIView):
@@ -33,6 +33,15 @@ class UserProfile(generics.RetrieveAPIView):
     throttle_scope = 'user_profile'
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
+    
+    def get_object(self):
+        return self.request.user
+
+
+class UpdateUserAPIView(generics.UpdateAPIView):
+    serializer_class = UpdateUserSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
     
     def get_object(self):
         return self.request.user
@@ -78,4 +87,3 @@ class ForgotPasswordAPIView(APIView):
             }, status=status.HTTP_200_OK)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                        
