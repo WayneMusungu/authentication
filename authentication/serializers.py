@@ -76,6 +76,15 @@ class PasswordResetSerializer(serializers.Serializer):
             raise serializers.ValidationError({"confirm_password": "Password do not match"})
         return data
     
+    def save(self):
+        user = self.instance
+        new_password = self.validated_data['new_password']
+        
+        # Set and save the new password for the user
+        user.set_password(new_password)
+        user.save()
+        return user
+    
 
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
